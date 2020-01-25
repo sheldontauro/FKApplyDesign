@@ -16,16 +16,23 @@ public class TicTacToe {
 		Scanner in = new Scanner(System.in);
 
 		int players = 2, count = 0;
+		HashMap<String, Integer> storeNames = new HashMap<>();
+		TicTacToeBoard board = new TicTacToeBoard();
 
 		while(count < players) {
 			count = count + 1;
 			System.out.println("Enter the name of player " + count);
 			String tempName = in.next();
-			Players createdPlayer = new Players(tempName);
-			playerList.add(createdPlayer);
+			if(!storeNames.containsKey(tempName)) {
+				Players createdPlayer = new Players(tempName, board);
+				playerList.add(createdPlayer);
+				storeNames.put(tempName, 0);
+			}
+			else {
+				count = count - 1;
+			}
 		}
 
-		TicTacToeBoard board = new TicTacToeBoard();
 
 		TicTacGame gm = new TicTacGame(playerList, board);
 		gm.startGame();
@@ -104,11 +111,17 @@ class Players implements PlayerInterface {
 	private String name;
 	private int playerId;
 	private static int id = 1;
+	private boolean isMachine;
+	private TicTacToeBoard board;
 
-	Players(String name) {
+	Players(String name, TicTacToeBoard board) {
 		this.name = name;
+		if(name.equals("machine")) {
+			isMachine = true;
+		}
 		this.playerId = id;
 		id = id + 1;
+		this.board = board;
 	}
 
 	public String getName() {
@@ -120,6 +133,20 @@ class Players implements PlayerInterface {
 	public ArrayList<Integer> doMove() {
 		ArrayList<Integer> moves;
 		TicTacToe tic = new TicTacToe();
+
+		if(isMachine) {
+			Random r = new Random();
+				int xcord = r.nextInt(board.getHeight());
+				int ycord = r.nextInt(board.getWidth());
+			while(!board.moveIsValid(xcord, ycord)) {
+				xcord = r.nextInt(board.getHeight());
+				ycord = r.nextInt(board.getWidth());
+				// System.out.println("Machine moved " + xcord + (ycord));
+			}
+			moves = new ArrayList<>(List.of(xcord, ycord));
+		
+			return moves;
+		}
 		
 		int xcord = tic.sc.nextInt();
 		int ycord = tic.sc.nextInt();
@@ -285,6 +312,13 @@ class TicTacToeBoard implements BoardInterface {
 		}
 	}
 
+	public int getHeight() {
+		return boardHeight;
+	}
+
+	public int getWidth() {
+		return boardWidth;
+	}
 
 	private int getCoordinates(int xcord, int ycord) {
 		return xcord * boardWidth + ycord;
