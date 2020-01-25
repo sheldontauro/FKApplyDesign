@@ -22,3 +22,10 @@ Terminal -> $Displays updated matrix$
 
 #NOTE
 If you use the name "machine"(Case sensitive) as the name for a player, the machine will play
+
+
+#TODO
+Handle for various sizes
+Handle for any letter(X-0, 1-2)
+Handle for multiple. number of players
+Make a game engine for multiple game(tournament style)
