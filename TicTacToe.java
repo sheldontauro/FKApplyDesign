@@ -48,11 +48,9 @@ interface PlayerInterface {
 interface GameInterface {
 	void startGame();
 	void endGame();
-	void declareResults();
 }
 
 interface BoardInterface {
-	// void validMoves();
 	boolean moveIsValid(int xcord, int ycord);
 	void displayBoard();
 	ArrayList<Integer> analyseBoard();
@@ -97,12 +95,8 @@ class TicTacGame implements GameInterface {
 		}
 		else {
 			String winnerName = participants.get(gameResults.get(1)).getName();
-			System.out.println(winnerName + "You Won!!");
+			System.out.println(winnerName + " You Won!!");
 		}
-	}
-
-	public void declareResults() {
-		System.out.println("We won, it's done");
 	}
 }
 
@@ -140,8 +134,7 @@ class Players implements PlayerInterface {
 				int ycord = r.nextInt(board.getWidth());
 			while(!board.moveIsValid(xcord, ycord)) {
 				xcord = r.nextInt(board.getHeight());
-				ycord = r.nextInt(board.getWidth());
-				// System.out.println("Machine moved " + xcord + (ycord));
+				ycord = r.nextInt(board.getWidth());//
 			}
 			moves = new ArrayList<>(List.of(xcord, ycord));
 		
