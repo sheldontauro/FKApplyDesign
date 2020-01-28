@@ -24,16 +24,18 @@ public class TicTacToe {
 		recSize = in.nextInt();
 		MetaTicGame gm = new MetaTicGame(diagSize, recSize, playerList, decide);
 		gm.addPlayers();
-		int finalResults = gm.playRecGame(recSize);
-		if(finalResults == -1) {
-			System.out.println("It's a draw");
-			gm.updateScoreBoard(diagSize);
+		while(true) {
+			int finalResults = gm.playRecGame(recSize);
+			if(finalResults == -1) {
+				System.out.println("It's a draw");
+				gm.updateScoreBoard(diagSize);
+			}
+			else {
+				System.out.println("Winner is player " + gm.getPlayerName(finalResults));
+				gm.updateScoreBoard(finalResults, recSize);
+			}
+			gm.displayScoreBoard();
 		}
-		else {
-			System.out.println("Winner is player " + gm.getPlayerName(finalResults));
-			gm.updateScoreBoard(finalResults, recSize);
-		}
-		gm.displayScoreBoard();
 	}
 }
 
