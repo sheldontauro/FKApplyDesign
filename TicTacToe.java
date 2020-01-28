@@ -15,30 +15,14 @@ public class TicTacToe {
 		ArrayList<Players> playerList = new ArrayList<>();
 		Scanner in = new Scanner(System.in);
 
-		// int players = 2, count = 0;
-		// HashMap<String, Integer> storeNames = new HashMap<>();
-
-		// while(count < players) {
-		// 	count = count + 1;
-		// 	System.out.println("Enter the name of player " + count);
-		// 	String tempName = in.next();
-		// 	if(!storeNames.containsKey(tempName)) {
-		// 		Players createdPlayer = new Players(tempName, new TicTacToeBoard());
-		// 		playerList.add(createdPlayer);
-		// 		storeNames.put(tempName, 0);
-		// 	}
-		// 	else {
-		// 		count = count - 1;
-		// 	}
-		// }
-
-
 		//starting a game
+		System.out.println("Press 0 for HexGame\nPress 1 for TicTacToe Game");
+		int decide = in.nextInt();
 		int diagSize, recSize;
 		System.out.println("Enter board Size and Game Size");
 		diagSize = in.nextInt();
 		recSize = in.nextInt();
-		MetaTicGame gm = new MetaTicGame(diagSize, recSize, playerList);
+		MetaTicGame gm = new MetaTicGame(diagSize, recSize, playerList, decide);
 		gm.addPlayers();
 		int finalResults = gm.playRecGame(recSize);
 		if(finalResults == -1) {
@@ -66,6 +50,10 @@ interface BoardInterface {
 	boolean moveIsValid(int xcord, int ycord);
 	void displayBoard();
 	ArrayList<Integer> analyseBoard();
+	int getHeight();
+	int getWidth();
+	int updateBoard(String operation, int xcord, int ycord, int playerNum);
+	boolean noMovesLeft();
 }
 
 class MetaTicGame {
@@ -73,13 +61,17 @@ class MetaTicGame {
 	private int bSize;
 	private int recSize;
 	private ArrayList<Players> participants;
+	private int decide;
 
-	MetaTicGame(int bSize, int recSize, ArrayList <Players> participants) {
+	MetaTicGame(int bSize, int recSize, ArrayList <Players> participants, int decide) {
 		this.bSize = bSize;
 		this.recSize = recSize;
 		this.participants = participants;
+		this.decide = decide;
 	}
 
+	//decide == 1 indicates TicTacToeBoard
+	//decide == 0 indicates Hex Board
 	void addPlayers() {
 
 		TicTacToe tic = new TicTacToe();
@@ -91,7 +83,13 @@ class MetaTicGame {
 			System.out.println("Enter the name of player " + count);
 			String tempName = tic.sc.next();
 			if(!storeNames.containsKey(tempName)) {
-				Players createdPlayer = new Players(tempName, new TicTacToeBoard(bSize));
+				Players createdPlayer;
+				if(decide == 1) {
+					createdPlayer = new Players(tempName, new TicTacToeBoard(bSize) );
+				}
+				else {
+					createdPlayer = new Players(tempName, new HexBoard(bSize) );
+				}
 				participants.add(createdPlayer);
 				storeNames.put(tempName, 0);
 			}
@@ -107,12 +105,23 @@ class MetaTicGame {
 
 	int playRecGame(int recSize) {
 		if(recSize == bSize) {
-			TicTacGame gm = new TicTacGame(participants, new TicTacToeBoard(bSize));
+			TicTacGame gm;
+			if(decide == 1) {
+				gm = new TicTacGame(participants, new TicTacToeBoard(bSize));
+			}
+			else {
+				gm = new TicTacGame(participants, new HexBoard(bSize));
+			}
 			return gm.startGame();
 		}
 		else {
-			
-			TicTacToeBoard recBoard = new TicTacToeBoard(bSize);
+			BoardInterface recBoard;
+			if(decide == 1) {
+				recBoard = new TicTacToeBoard(bSize);
+			}
+			else {
+				recBoard = new HexBoard(bSize);
+			}
 			for(int i = 0; i < bSize; i++) {
 				for(int j = 0; j < bSize; j++) {
 					int retResult = playRecGame(recSize / bSize);
@@ -158,12 +167,18 @@ class MetaTicGame {
 class TicTacGame implements GameInterface {
 	
 	private ArrayList<Players> participants;
-	private TicTacToeBoard board;
+	private BoardInterface board;
 
 	TicTacGame(ArrayList<Players> participants, TicTacToeBoard board) {
 		this.participants = participants;
 		this.board = board;
 	}
+
+	TicTacGame(ArrayList<Players> participants, HexBoard board) {
+		this.participants = participants;
+		this.board = board;
+	}
+
 
 	public int startGame() {
 		int currIndex = 0;
@@ -214,10 +229,21 @@ class Players implements PlayerInterface {
 	private int playerId;
 	private static int id = 1;
 	private boolean isMachine;
-	private TicTacToeBoard board;
+	private BoardInterface board;
 	private int performanceScore;
 
 	Players(String name, TicTacToeBoard board) {
+		this.name = name;
+		if(name.equals("machine")) {
+			isMachine = true;
+		}
+		this.playerId = id;
+		id = id + 1;
+		this.board = board;
+		this.performanceScore = 0;
+	}
+
+	Players(String name, HexBoard board) {
 		this.name = name;
 		if(name.equals("machine")) {
 			isMachine = true;
@@ -445,7 +471,6 @@ class TicTacToeBoard implements BoardInterface {
 		if(operation.toLowerCase().equals("set")) {
 			boardState.put(coordinates, playerNum);
 			moveCount++;
-			// System.out.println("Previous " + xcord + " " + ycord);
 			prevXcord.add(xcord);
 			prevYcord.add(ycord);
 			return 1;
@@ -455,13 +480,10 @@ class TicTacToeBoard implements BoardInterface {
 				System.out.println("No moves to undo!!");
 				return -1;
 			}
-			// int prevXcord = this.prevXcord;
-			// int prevYcord = this.prevYcord;
 			coordinates = getCoordinates(prevXcord.get(moveCount - 1), prevYcord.get(moveCount - 1));
 			prevXcord.remove(moveCount - 1);
 			prevYcord.remove(moveCount - 1);
 			moveCount--;
-			// System.out.println("Coordinates " + coordinates);
 			boardState.remove(coordinates);
 			return 1;
 		}
@@ -481,3 +503,193 @@ class TicTacToeBoard implements BoardInterface {
 	}
 }
 
+
+class HexBoard implements BoardInterface {
+	
+	private int diagReq, distCenter;
+	private int boardHeight, boardWidth;
+	private ArrayList<String> letters;
+	private HashMap<Integer, Integer> boardState;
+	private int totalCells, moveCount;
+	private ArrayList<Integer> prevXcord, prevYcord;
+
+	HexBoard(int distCenter) {
+		diagReq = 2*distCenter - 1;
+		this.distCenter = distCenter;
+		this.boardWidth = diagReq;
+		this.boardHeight = diagReq;
+		letters = new ArrayList<String>(List.of("X", "0"));
+		boardState = new HashMap<>();
+		totalCells = getTotalCells();
+		prevXcord = new ArrayList<Integer>();
+		prevYcord = new ArrayList<Integer>();
+		moveCount = 0;
+	}
+
+	private int getTotalCells() {
+		int ret = 0;
+		for(int i = 1; i < diagReq ; i++) {
+			ret += i * 2;
+		}
+		return ret;
+	}
+
+	public boolean moveIsValid(int xcord, int ycord) {
+		if(Math.min(xcord, ycord) < 0 || xcord >= boardHeight || ycord >= boardWidth) {
+			return false;
+		}
+
+		if(ycord >= distCenter + Math.min(xcord, diagReq - xcord - 1)) {
+			return false;
+		}
+
+		if( boardState.containsKey(getCoordinates(xcord, ycord)) ) {
+			return false;
+		}
+		return true;
+	}
+
+	public void displayBoard() {
+		
+		for(int i = 0; i < diagReq; i++) {
+			for(int j = 0; j < Math.min(i, diagReq - i - 1) + distCenter; j++) {
+				int coord = getCoordinates(i, j);
+
+				
+				if( boardState.containsKey(coord) ) {
+					System.out.print("   " + letters.get(boardState.get(coord)) + "   ");
+				}
+				else {
+					System.out.print("   __   ");
+				}
+			}
+			System.out.println();
+
+		}
+
+	}
+
+	public ArrayList<Integer> analyseBoard() {
+		ArrayList<Integer> results = new ArrayList<>();
+
+		if( !boardState.containsKey(getCoordinates(distCenter - 1, distCenter - 1)) ) {
+			results.add(-1);
+			return results;
+		}
+		int playerIndex = boardState.get(getCoordinates(distCenter - 1, distCenter - 1));
+
+		//checking horizontal
+		Set <Integer> se = new HashSet<>();
+		for(int k = 0; k < diagReq; k++) {
+			if(!boardState.containsKey(getCoordinates(distCenter - 1, k))) {
+				se.add(-1);
+				se.add(-2);
+				break;
+			}
+			int tempCoord = boardState.get(getCoordinates(distCenter - 1, k));
+			se.add(tempCoord);
+		}
+		if(se.size() == 1) {
+			results.add(2);
+			results.add(playerIndex);
+			return results;
+		}
+
+		//checking forward diagonal
+		se = new HashSet<>();
+		int tempCt = 0;
+		for(int i = 0; i < diagReq; i++) {
+			
+			if( !boardState.containsKey(getCoordinates(i, tempCt)) ) {
+				se.add(-1);
+				se.add(-2);
+				break;
+			}
+			int tempCoord = boardState.get(getCoordinates(i, tempCt));
+			se.add(tempCoord);
+
+
+			if(i < diagReq / 2) {
+				tempCt++;
+			}
+		}
+		if(se.size() == 1) {
+			results.add(2);
+			results.add(playerIndex);
+			return results;
+		}
+
+		//checking backward diagonal
+		se = new HashSet<>();
+		tempCt = 0;
+		for(int i = 0; i < diagReq; i++) {
+			
+			if( !boardState.containsKey(getCoordinates(diagReq - i - 1, tempCt)) ) {
+				se.add(-1);
+				se.add(-2);
+				break;
+			}
+			int tempCoord = boardState.get(getCoordinates(diagReq - i - 1, tempCt));
+			se.add(tempCoord);
+
+
+			if(i < diagReq / 2) {
+				tempCt++;
+			}
+		}
+		if(se.size() == 1) {
+			results.add(2);
+			results.add(playerIndex);
+			return results;
+		}
+
+		if(noMovesLeft()) {
+			results.add(1);
+		}
+		else {
+			results.add(-1);
+		}
+
+		return results;
+	}
+
+	public boolean noMovesLeft() {
+		return ( boardState.size() == totalCells );
+	}
+
+	public int updateBoard(String operation, int xcord, int ycord, int playerNum) {
+		int coordinates = getCoordinates(xcord, ycord);
+		if(operation.toLowerCase().equals("set")) {
+			boardState.put(coordinates, playerNum);
+			moveCount++;
+			prevXcord.add(xcord);
+			prevYcord.add(ycord);
+			return 1;
+		}
+		if(operation.toLowerCase().equals("unset")) {
+			if(moveCount == 0) {
+				System.out.println("No moves to undo!!");
+				return -1;
+			}
+			coordinates = getCoordinates(prevXcord.get(moveCount - 1), prevYcord.get(moveCount - 1));
+			prevXcord.remove(moveCount - 1);
+			prevYcord.remove(moveCount - 1);
+			moveCount--;
+			boardState.remove(coordinates);
+			return 1;
+		}
+		return 0;
+	}
+
+	public int getHeight() {
+		return boardHeight;
+	}
+
+	public int getWidth() {
+		return boardWidth;
+	}
+
+	private int getCoordinates(int xcord, int ycord) {
+		return xcord * diagReq + ycord;
+	}
+}

@@ -1,15 +1,20 @@
 # FKApplyDesign
 
 
-#How to run
+#How to run(Updated)
 
 Run file TicTacToe.java
-Enter the name of the first player
-Enter the name of the second player
+Choose which game you want to play.
+Choose the actual board game size and the recursive size for the enhanced version of the game.
+Enter the name of the first player.
+Enter the name of the second player.
+At the end of the game you will be the scoreboard of the players.
 
 To mark a block -> Enter the coordinates(0 indexing)
 
 once the game is over the result is declared
+
+Note - to undo a move input "-1" in the x coordinate's place 
 
 #Example
 
@@ -37,5 +42,6 @@ Make a game engine for multiple game(tournament style)
 
 #Update
 
-added phase 2 changes
+added phase 2 changes.
+added phase 3 changes except handling irregular hexagonal structures.
 
