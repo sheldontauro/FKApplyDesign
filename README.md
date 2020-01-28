@@ -2,6 +2,7 @@
 
 
 #How to run
+
 Run file TicTacToe.java
 Enter the name of the first player
 Enter the name of the second player
@@ -11,6 +12,7 @@ To mark a block -> Enter the coordinates(0 indexing)
 once the game is over the result is declared
 
 #Example
+
 Terminal -> Enter the name of player 1
 User -> name1
 Terminal -> Enter the name of player 2
@@ -21,11 +23,19 @@ User -> enters coordinates for the matrix(his move)
 Terminal -> $Displays updated matrix$
 
 #NOTE
+
 If you use the name "machine"(Case sensitive) as the name for a player, the machine will play
 
 
 #TODO
+
 Handle for various sizes
 Handle for any letter(X-0, 1-2)
 Handle for multiple. number of players
 Make a game engine for multiple game(tournament style)
+
+
+#Update
+
+added phase 2 changes
+
