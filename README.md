@@ -24,12 +24,19 @@ Note - to undo a move input "-1" in the x coordinate's place
 #Example
 
 Terminal -> Enter the name of player 1
+
 User -> name1
+
 Terminal -> Enter the name of player 2
+
 User -> name2
+
 Terminal -> $Displays Empty Matrix$
+
 Terminal -> name1 move(indicating it is name1's move)
+
 User -> enters coordinates for the matrix(his move)
+
 Terminal -> $Displays updated matrix$
 
 #NOTE
