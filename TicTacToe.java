@@ -148,10 +148,10 @@ class MetaTicGame {
 						
 						recBoard.updateBoard("set", i, j, retResult);
 						System.out.println(i + " " + j + " " + retResult);
-						ArrayList<Integer> tempResults = recBoard.analyseBoard();
+						ArrayList<Integer> nestedBoardResults = recBoard.analyseBoard();
 
-						if(tempResults.get(0) == 2) {
-							return tempResults.get(1);
+						if(nestedBoardResults.get(0) == 2) {
+							return nestedBoardResults.get(1);
 						}
 
 					}
@@ -423,8 +423,7 @@ class TicTacToeBoard implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i, j + k));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i, j + k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -442,8 +441,7 @@ class TicTacToeBoard implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i + k, j)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -461,8 +459,7 @@ class TicTacToeBoard implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j + k));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i + k, j + k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -480,8 +477,7 @@ class TicTacToeBoard implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j - k));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i + k, j - k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -596,9 +592,13 @@ class HexBoard implements BoardInterface {
 	public void displayBoard() {
 		
 		for(int i = 0; i < diagReq; i++) {
+
+			for(int k = 0; k < Math.abs(i - diagReq / 2); k++) {
+				System.out.print("    ");		
+			}
+
 			for(int j = 0; j < Math.min(i, diagReq - i - 1) + distCenter; j++) {
 				int coord = getCoordinates(i, j);
-
 				
 				if( boardState.containsKey(coord) ) {
 					System.out.print("   " + letters.get(boardState.get(coord)) + "   ");
@@ -630,8 +630,7 @@ class HexBoard implements BoardInterface {
 				se.add(-2);
 				break;
 			}
-			int tempCoord = boardState.get(getCoordinates(distCenter - 1, k));
-			se.add(tempCoord);
+			se.add(boardState.get(getCoordinates(distCenter - 1, k)));
 		}
 		if(se.size() == 1) {
 			results.add(2);
@@ -649,8 +648,7 @@ class HexBoard implements BoardInterface {
 				se.add(-2);
 				break;
 			}
-			int tempCoord = boardState.get(getCoordinates(i, tempCt));
-			se.add(tempCoord);
+			se.add(boardState.get(getCoordinates(i, tempCt)));
 
 
 			if(i < diagReq / 2) {
@@ -673,8 +671,7 @@ class HexBoard implements BoardInterface {
 				se.add(-2);
 				break;
 			}
-			int tempCoord = boardState.get(getCoordinates(diagReq - i - 1, tempCt));
-			se.add(tempCoord);
+			se.add(boardState.get(getCoordinates(diagReq - i - 1, tempCt)));
 
 
 			if(i < diagReq / 2) {
@@ -827,8 +824,7 @@ class ConnectFour implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i, j + k));
-						se.add(tempCoord);
+						se.add((int)boardState.get(getCoordinates(i, j + k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -846,8 +842,7 @@ class ConnectFour implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i + k, j)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -865,8 +860,7 @@ class ConnectFour implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j + k));
-						se.add(tempCoord);
+						se.add(boardState.get(getCoordinates(i + k, j + k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
@@ -884,8 +878,7 @@ class ConnectFour implements BoardInterface {
 							se.add(-2);
 							break;
 						}
-						int tempCoord = boardState.get(getCoordinates(i + k, j - k));
-						se.add(tempCoord);
+						se.add((int)boardState.get(getCoordinates(i + k, j - k)));
 					}
 					if(se.size() == 1) {
 						results.add(2);
