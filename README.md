@@ -43,6 +43,10 @@ Terminal -> $Displays updated matrix$
 
 If you use the name "machine"(Case sensitive) as the name for a player, the machine will play
 
+--> In the hex game the board display is not very intuitive
+
+--> In the connect four game you have to mention the exact cells where you would like to place the block(but if you try to place it in the wrong place a move-checker is kept in place)
+
 
 #TODO
 
@@ -57,4 +61,6 @@ Make a game engine for multiple game(tournament style)
 added phase 2 changes.
 
 added phase 3 changes except handling irregular hexagonal structures.
+
+added support for connect four game.
 
