@@ -16,14 +16,20 @@ public class TicTacToe {
 		Scanner in = new Scanner(System.in);
 
 		//starting a game
-		System.out.println("Press 0 for HexGame\nPress 1 for TicTacToe Game");
+		System.out.println("Press 0 for HexGame\nPress 1 for TicTacToe Game\nPress 2 for Connect Four Game");
 		int decide = in.nextInt();
 		int diagSize, recSize;
-		System.out.println("Enter board Size and Game Size");
+		System.out.println("Enter board Size and Recursive Board Size");
 		diagSize = in.nextInt();
 		recSize = in.nextInt();
+		while(decide == 2 && diagSize != recSize) {
+			System.out.println("board Size and Game Size should be same!!, please re-enter inputs");
+			diagSize = in.nextInt();
+			recSize = in.nextInt();
+		}
 		MetaTicGame gm = new MetaTicGame(diagSize, recSize, playerList, decide);
 		gm.addPlayers();
+		
 		while(true) {
 			int finalResults = gm.playRecGame(recSize);
 			if(finalResults == -1) {
@@ -72,6 +78,7 @@ class MetaTicGame {
 		this.decide = decide;
 	}
 
+	//decide == 2 indicates Connect Four Board
 	//decide == 1 indicates TicTacToeBoard
 	//decide == 0 indicates Hex Board
 	void addPlayers() {
@@ -83,17 +90,20 @@ class MetaTicGame {
 		while(count < players) {
 			count = count + 1;
 			System.out.println("Enter the name of player " + count);
-			String tempName = tic.sc.next();
-			if(!storeNames.containsKey(tempName)) {
+			String playerName = tic.sc.next();
+			if(!storeNames.containsKey(playerName)) {
 				Players createdPlayer;
 				if(decide == 1) {
-					createdPlayer = new Players(tempName, new TicTacToeBoard(bSize) );
+					createdPlayer = new Players(playerName, new TicTacToeBoard(bSize) );
+				}
+				else if(decide == 2) {
+					createdPlayer = new Players(playerName, new ConnectFour() );
 				}
 				else {
-					createdPlayer = new Players(tempName, new HexBoard(bSize) );
+					createdPlayer = new Players(playerName, new HexBoard(bSize) );
 				}
 				participants.add(createdPlayer);
-				storeNames.put(tempName, 0);
+				storeNames.put(playerName, 0);
 			}
 			else {
 				count = count - 1;
@@ -111,6 +121,9 @@ class MetaTicGame {
 			if(decide == 1) {
 				gm = new TicTacGame(participants, new TicTacToeBoard(bSize));
 			}
+			else if(decide == 2) {
+				gm = new TicTacGame(participants, new ConnectFour(bSize));
+			}
 			else {
 				gm = new TicTacGame(participants, new HexBoard(bSize));
 			}
@@ -121,6 +134,9 @@ class MetaTicGame {
 			if(decide == 1) {
 				recBoard = new TicTacToeBoard(bSize);
 			}
+			else if(decide == 2) {
+				recBoard = new ConnectFour(bSize);
+			}
 			else {
 				recBoard = new HexBoard(bSize);
 			}
@@ -129,12 +145,15 @@ class MetaTicGame {
 					int retResult = playRecGame(recSize / bSize);
 					System.out.println("Print retResult " + retResult);
 					if(retResult >= 0) {
+						
 						recBoard.updateBoard("set", i, j, retResult);
 						System.out.println(i + " " + j + " " + retResult);
 						ArrayList<Integer> tempResults = recBoard.analyseBoard();
+
 						if(tempResults.get(0) == 2) {
 							return tempResults.get(1);
 						}
+
 					}
 				}
 			}
@@ -171,6 +190,11 @@ class TicTacGame implements GameInterface {
 	private ArrayList<Players> participants;
 	private BoardInterface board;
 
+	TicTacGame(ArrayList<Players> participants, ConnectFour board) {
+		this.participants = participants;
+		this.board = board;
+	}
+
 	TicTacGame(ArrayList<Players> participants, TicTacToeBoard board) {
 		this.participants = participants;
 		this.board = board;
@@ -185,11 +209,14 @@ class TicTacGame implements GameInterface {
 	public int startGame() {
 		int currIndex = 0;
 		this.board.displayBoard();
+
 		while( !board.noMovesLeft() && board.analyseBoard().get(0) == -1 ) {
 			Players currPlayer = participants.get(currIndex);
 			System.out.println(currPlayer.getName() + " move");
 
 			ArrayList<Integer> currMove = currPlayer.doMove();
+
+			//handle undo
 			if(currMove.get(0) == -1) {
 				int outcome = board.updateBoard("unset", 0, 0, 0);
 				if(outcome >= 0) {
@@ -198,6 +225,8 @@ class TicTacGame implements GameInterface {
 				}
 				continue;
 			}
+
+			//check for valid move
 			while( !board.moveIsValid(currMove.get(0), currMove.get(1)) ) {
 				System.out.println("Enter a valid move!!");
 				currMove = currPlayer.doMove();
@@ -207,6 +236,7 @@ class TicTacGame implements GameInterface {
 			this.board.displayBoard();
 			currIndex = (currIndex + 1) % participants.size();
 		}
+
 		return this.endGame();
 	}
 
@@ -246,6 +276,17 @@ class Players implements PlayerInterface {
 	}
 
 	Players(String name, HexBoard board) {
+		this.name = name;
+		if(name.equals("machine")) {
+			isMachine = true;
+		}
+		this.playerId = id;
+		id = id + 1;
+		this.board = board;
+		this.performanceScore = 0;
+	}
+
+	Players(String name, ConnectFour board) {
 		this.name = name;
 		if(name.equals("machine")) {
 			isMachine = true;
@@ -507,7 +548,7 @@ class TicTacToeBoard implements BoardInterface {
 
 
 class HexBoard implements BoardInterface {
-	
+
 	private int diagReq, distCenter;
 	private int boardHeight, boardWidth;
 	private ArrayList<String> letters;
@@ -530,9 +571,10 @@ class HexBoard implements BoardInterface {
 
 	private int getTotalCells() {
 		int ret = 0;
-		for(int i = 1; i < diagReq ; i++) {
+		for(int i = 1; i < distCenter ; i++) {
 			ret += i * 2;
 		}
+		ret = diagReq * diagReq - ret;
 		return ret;
 	}
 
@@ -693,5 +735,217 @@ class HexBoard implements BoardInterface {
 
 	private int getCoordinates(int xcord, int ycord) {
 		return xcord * diagReq + ycord;
+	}
+}
+
+
+class ConnectFour implements BoardInterface {
+	private int boardHeight, boardWidth, diagonalReq;
+	private ArrayList<String> letters;
+	private HashMap<Integer, Integer> boardState;
+	private int moveCount;
+	private ArrayList<Integer> prevXcord, prevYcord;
+
+	ConnectFour() {
+		boardHeight = 4;
+		boardWidth = 4;
+		diagonalReq = 4;
+		moveCount = 0;
+		letters = new ArrayList<String>(List.of("X", "0"));
+		boardState = new HashMap<>();
+		prevXcord = new ArrayList<Integer>();
+		prevYcord = new ArrayList<Integer>();
+	}
+
+	ConnectFour(int bSize) {
+		boardHeight = bSize;
+		boardWidth = bSize;
+		diagonalReq = bSize;
+		moveCount = 0;
+		letters = new ArrayList<String>(List.of("X", "0"));
+		boardState = new HashMap<>();
+		prevXcord = new ArrayList<Integer>();
+		prevYcord = new ArrayList<Integer>();
+	}
+
+	public void displayBoard() {
+		
+		for(int i = 0; i < boardHeight; i++) {
+			for(int j = 0; j < boardWidth; j++) {
+				int coord = getCoordinates(i, j);
+				
+				if( boardState.containsKey(coord) ) {
+					System.out.print("   " + letters.get(boardState.get(coord)) + "   ");
+				}
+				else {
+					System.out.print("   __   ");
+				}
+			}
+			System.out.println();
+
+		}
+
+	}
+
+	public boolean moveIsValid(int xcord, int ycord) {
+		if(Math.min(xcord, ycord) < 0 || xcord >= boardHeight || ycord >= boardWidth) {
+			return false;
+		}
+		if( boardState.containsKey(getCoordinates(xcord, ycord)) ) {
+			return false;
+		}
+		if(xcord == boardHeight - 1) {
+			return true;
+		}
+		if( !boardState.containsKey(getCoordinates(xcord + 1, ycord)) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	// result of 2 indicates win
+	// result of 1 indicates draw
+	// result of 0 indicates loss
+	// result of -1 in the first cell indicates games is not decided yet
+	public ArrayList<Integer> analyseBoard() {
+		ArrayList<Integer> results = new ArrayList<>();
+		
+		for(int i = 0; i < boardHeight; i++) {
+			for(int j = 0; j < boardWidth; j++) {
+				if(!boardState.containsKey(getCoordinates(i, j))) {
+					continue;
+				}
+
+				int playerIndex = boardState.get(getCoordinates(i, j));
+				//checking horizontal
+				if(j + diagonalReq - 1 < boardWidth) {
+					Set <Integer> se = new HashSet<>();
+					for(int k = 0; k < diagonalReq; k++) {
+						if(!boardState.containsKey(getCoordinates(i, j + k))) {
+							se.add(-1);
+							se.add(-2);
+							break;
+						}
+						int tempCoord = boardState.get(getCoordinates(i, j + k));
+						se.add(tempCoord);
+					}
+					if(se.size() == 1) {
+						results.add(2);
+						results.add(playerIndex);
+						return results;
+					}
+				}
+
+				//checking vertical
+				if(i + diagonalReq - 1 < boardHeight) {
+					Set <Integer> se = new HashSet<>();
+					for(int k = 0; k < diagonalReq; k++) {
+						if(!boardState.containsKey(getCoordinates(i + k, j))) {
+							se.add(-1);
+							se.add(-2);
+							break;
+						}
+						int tempCoord = boardState.get(getCoordinates(i + k, j));
+						se.add(tempCoord);
+					}
+					if(se.size() == 1) {
+						results.add(2);
+						results.add(playerIndex);
+						return results;
+					}
+				}
+
+				//checking diagonal 
+				if(j + diagonalReq - 1 < boardWidth && i + diagonalReq - 1 < boardHeight) {
+					Set <Integer> se = new HashSet<>();
+					for(int k = 0; k < diagonalReq; k++) {
+						if(!boardState.containsKey(getCoordinates(i + k, j + k))) {
+							se.add(-1);
+							se.add(-2);
+							break;
+						}
+						int tempCoord = boardState.get(getCoordinates(i + k, j + k));
+						se.add(tempCoord);
+					}
+					if(se.size() == 1) {
+						results.add(2);
+						results.add(playerIndex);
+						return results;
+					}
+				}
+
+				//checking diagonal backwards
+				if(j - diagonalReq + 1 >= 0 && i + diagonalReq - 1 < boardHeight ) {
+					Set <Integer> se = new HashSet<>();
+					for(int k = 0; k < diagonalReq; k++) {
+						if(!boardState.containsKey(getCoordinates(i + k, j - k))) {
+							se.add(-1);
+							se.add(-2);
+							break;
+						}
+						int tempCoord = boardState.get(getCoordinates(i + k, j - k));
+						se.add(tempCoord);
+					}
+					if(se.size() == 1) {
+						results.add(2);
+						results.add(playerIndex);
+						return results;
+					}
+				}
+			}
+		}
+
+		if(!results.isEmpty()) {
+			return results;
+		}
+
+		if(this.noMovesLeft()) {
+			results.add(1);
+		}
+		else {
+			results.add(-1);
+		}
+		return results;
+	}
+
+	public boolean noMovesLeft() {
+		return ( boardState.size() == boardHeight * boardWidth );
+	}
+
+	public int updateBoard(String operation, int xcord, int ycord, int playerNum) {
+		int coordinates = getCoordinates(xcord, ycord);
+		if(operation.toLowerCase().equals("set")) {
+			boardState.put(coordinates, playerNum);
+			moveCount++;
+			prevXcord.add(xcord);
+			prevYcord.add(ycord);
+			return 1;
+		}
+		if(operation.toLowerCase().equals("unset")) {
+			if(moveCount == 0) {
+				System.out.println("No moves to undo!!");
+				return -1;
+			}
+			coordinates = getCoordinates(prevXcord.get(moveCount - 1), prevYcord.get(moveCount - 1));
+			prevXcord.remove(moveCount - 1);
+			prevYcord.remove(moveCount - 1);
+			moveCount--;
+			boardState.remove(coordinates);
+			return 1;
+		}
+		return 0;
+	}
+
+	public int getHeight() {
+		return boardHeight;
+	}
+
+	public int getWidth() {
+		return boardWidth;
+	}
+
+	private int getCoordinates(int xcord, int ycord) {
+		return xcord * boardWidth + ycord;
 	}
 }
