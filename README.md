@@ -1,9 +1,11 @@
 # FKApplyDesign
 
 
-#How to run(Updated)
+# How to run(Updated)
 
-Run file TicTacToe.java
+Compile the files (javac -d ClassFiles/ *.java)
+
+Run file Main class TicTacToe in TicTacToe.java(java -cp ClassFiles/ javaDesign.TicTacToe)
 
 Choose which game you want to play.
 
@@ -21,7 +23,7 @@ once the game is over the result is declared
 
 Note - to undo a move input "-1" in the x coordinate's place 
 
-#Example
+# Example
 
 Terminal -> Enter the name of player 1
 
@@ -39,7 +41,7 @@ User -> enters coordinates for the matrix(his move)
 
 Terminal -> $Displays updated matrix$
 
-#NOTE
+# NOTE
 
 If you use the name "machine"(Case sensitive) as the name for a player, the machine will play
 
@@ -48,15 +50,7 @@ If you use the name "machine"(Case sensitive) as the name for a player, the mach
 --> In the connect four game you have to mention the exact cells where you would like to place the block(but if you try to place it in the wrong place a move-checker is kept in place)
 
 
-#TODO
-
-Handle for various sizes
-Handle for any letter(X-0, 1-2)
-Handle for multiple. number of players
-Make a game engine for multiple game(tournament style)
-
-
-#Update
+# Update
 
 added phase 2 changes.
 
